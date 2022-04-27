@@ -42,12 +42,21 @@ import hudson.slaves.AbstractCloudComputer;
 public class ECSComputer extends AbstractCloudComputer<ECSSlave> {
     private static final Logger LOGGER = Logger.getLogger(ECSComputer.class.getName());
 
+    private final ECSSlave slave;
+
     public ECSComputer(ECSSlave slave) {
         super(slave);
+        this.slave = slave;
     }
 
     @Override
     public void taskAccepted(Executor executor, Queue.Task task) {
+        if(!slave.isPermittedUrl(task.getUrl())) {
+            slave.abortBuild();
+            LOGGER.log(Level.INFO, "[{0}]: JobName: {1}", new Object[] {this.getName(), task.getDisplayName()});
+            LOGGER.log(Level.INFO, "[{0}]: JobUrl: {1}", new Object[] {this.getName(), task.getUrl()});
+            LOGGER.log(Level.INFO, "[{0}]: The job URL is not permitted in the agent's list of job prefixes", this);
+        }
         super.taskAccepted(executor, task);
         LOGGER.log(Level.INFO, "[{0}]: JobName: {1}", new Object[] {this.getName(), task.getDisplayName()});
         LOGGER.log(Level.INFO, "[{0}]: JobUrl: {1}", new Object[] {this.getName(), task.getUrl()});

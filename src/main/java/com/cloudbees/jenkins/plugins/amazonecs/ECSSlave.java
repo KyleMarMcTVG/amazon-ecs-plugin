@@ -30,6 +30,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +42,8 @@ import com.amazonaws.services.ecs.model.ClientException;
 import com.amazonaws.services.ecs.model.ClusterNotFoundException;
 import com.amazonaws.services.ecs.model.InvalidParameterException;
 import com.amazonaws.services.ecs.model.ServerException;
+import com.amazonaws.services.ecs.model.Task;
+import com.amazonaws.services.ecs.model.Tag;
 
 import org.jenkinsci.plugins.durabletask.executors.OnceRetentionStrategy;
 import hudson.model.Descriptor;
@@ -164,5 +167,35 @@ public class ECSSlave extends AbstractCloudSlave {
 
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
+    }
+
+    public boolean isPermittedUrl(String jobUrl) {
+        Task task = cloud.getEcsService().describeTask(taskArn, clusterArn);
+        List<Tag> tags = task.getTags();
+
+        boolean weHaveJobPrefixRestrictions = false;
+
+        // check the tags for ones which we want; if we match any, allow the build
+        for (Tag tag: tags) {
+            if (tag.getKey().startsWith("JENKINS_JOB_PREFIX_")) {
+                weHaveJobPrefixRestrictions = true;
+                if (jobUrl.startsWith(tag.getValue())) {
+                    return true;
+                }
+            }
+        }
+
+        // if we are here, there are tags. If any matched the prefix we
+        // want and we are here, our job isn't a match
+        if (weHaveJobPrefixRestrictions) {
+            return false;
+        }
+
+        // there are tags but not ones of interest OR there are no tags
+        return false;
+    }
+
+    public void abortBuild() {
+        cloud.getEcsService().stopTask(taskArn, clusterArn);
     }
 }
