@@ -179,7 +179,8 @@ public class ECSSlave extends AbstractCloudSlave {
         for (Tag tag: tags) {
             if (tag.getKey().startsWith("JENKINS_JOB_PREFIX_")) {
                 weHaveJobPrefixRestrictions = true;
-                if (jobUrl.startsWith(tag.getValue())) {
+                String restrictedPrefix = tag.getValue().replace("@", "%");
+                if (jobUrl.startsWith(restrictedPrefix)) {
                     return true;
                 }
             }
