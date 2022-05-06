@@ -170,17 +170,20 @@ public class ECSSlave extends AbstractCloudSlave {
     }
 
     public boolean isPermittedUrl(String jobUrl) {
-        Task task = cloud.getEcsService().describeTask(taskArn, clusterArn);
-        List<Tag> tags = task.getTags();
+        List<Tag> tags = cloud.getEcsService().listTagsForResource(taskDefinitonArn);
 
         boolean weHaveJobPrefixRestrictions = false;
 
         // check the tags for ones which we want; if we match any, allow the build
         for (Tag tag: tags) {
+            LOGGER.log(Level.INFO, "[{0}]: Checking tag {1}={2}", new Object[]{this.getNodeName(), tag.getKey(), tag.getValue()});
             if (tag.getKey().startsWith("JENKINS_JOB_PREFIX_")) {
+                LOGGER.log(Level.INFO, "[{0}]: tag {1} starts with JENKINS_JOB_PREFIX_ so we have job prefix restrictions", new Object[]{this.getNodeName(), tag.getKey()});
                 weHaveJobPrefixRestrictions = true;
                 String restrictedPrefix = tag.getValue().replace("@", "%");
+                LOGGER.log(Level.INFO, "[{0}]: tag {1} has restricted prefix [{2}]", new Object[]{this.getNodeName(), tag.getKey(), restrictedPrefix});
                 if (jobUrl.startsWith(restrictedPrefix)) {
+                    LOGGER.log(Level.INFO, "[{0}]: tag {1} has restricted prefix [{2}], jobUrl [{3}] starts with it, approve", new Object[]{this.getNodeName(), tag.getKey(), restrictedPrefix, jobUrl});
                     return true;
                 }
             }
@@ -189,11 +192,13 @@ public class ECSSlave extends AbstractCloudSlave {
         // if we are here, there are tags. If any matched the prefix we
         // want and we are here, our job isn't a match
         if (weHaveJobPrefixRestrictions) {
+            LOGGER.log(Level.INFO, "[{0}]: job restrictions found but none match", new Object[]{this.getNodeName()});
             return false;
         }
 
         // there are tags but not ones of interest OR there are no tags
-        return false;
+        LOGGER.log(Level.INFO, "[{0}]: job restrictions not found, so permit this task", new Object[]{this.getNodeName()});
+        return true;
     }
 
     public void abortBuild() {

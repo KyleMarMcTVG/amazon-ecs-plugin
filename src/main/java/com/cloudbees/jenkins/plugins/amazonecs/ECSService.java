@@ -28,6 +28,7 @@ package com.cloudbees.jenkins.plugins.amazonecs;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -388,6 +389,27 @@ public class ECSService extends BaseAWSService {
         } catch (ClientException e) {
             LOGGER.log(Level.FINE, "No existing task definition found for family or ARN: " + familyOrArn, e);
             LOGGER.log(Level.INFO, "No existing task definition found for family or ARN: " + familyOrArn);
+
+            return null;
+        }
+    }
+
+    /**
+     * Finds the task definition for the specified family or ARN, or null if none is found.
+     * The parameter may be a task definition family, family with revision, or full task definition ARN.
+     */
+    List<Tag> listTagsForResource(String resourceArn) {
+        AmazonECS client = clientSupplier.get();
+
+        try {
+            ListTagsForResourceResult result = client.listTagsForResource(
+                    new ListTagsForResourceRequest().withResourceArn(resourceArn)
+            );
+
+            return result.getTags();
+        } catch (ClientException e) {
+            LOGGER.log(Level.FINE, "No existing resource found for ARN: " + resourceArn, e);
+            LOGGER.log(Level.INFO, "No existing resource found for ARN: " + resourceArn);
 
             return null;
         }
