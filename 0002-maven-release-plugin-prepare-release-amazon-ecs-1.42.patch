@@ -1,0 +1,34 @@
+From ae39a0363d1ceaa73946b2bb34d38792a409807d Mon Sep 17 00:00:00 2001
+From: Kyle Martineau-McFarlane <kyle.martineau-mcfarlane@theverygroup.com>
+Date: Wed, 27 Apr 2022 14:12:13 +0100
+Subject: [PATCH 2/4] [maven-release-plugin] prepare release amazon-ecs-1.42tvg
+
+---
+ pom.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/pom.xml b/pom.xml
+index 0870f2c..231bae0 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -27,7 +27,7 @@
+ 
+     <groupId>com.cloudbees.jenkins.plugins</groupId>
+     <artifactId>amazon-ecs</artifactId>
+-    <version>1.42-SNAPSHOT</version>
++    <version>1.42tvg</version>
+     <packaging>hpi</packaging>
+     <name>Amazon Elastic Container Service (ECS) / Fargate plugin</name>
+     <description>Jenkins plugin to run dynamic agents in a Amazon ECS/Docker environment</description>
+@@ -58,7 +58,7 @@
+         <connection>scm:git:git://github.com/jenkinsci/amazon-ecs-plugin.git</connection>
+         <developerConnection>scm:git:git@github.com:jenkinsci/amazon-ecs-plugin.git</developerConnection>
+         <url>https://github.com/jenkinsci/amazon-ecs-plugin</url>
+-        <tag>amazon-ecs-1.21</tag>
++        <tag>amazon-ecs-1.42tvg</tag>
+     </scm>
+ 
+     <repositories>
+-- 
+2.30.2
+

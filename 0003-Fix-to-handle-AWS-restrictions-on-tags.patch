@@ -1,0 +1,26 @@
+From 5555666ec0c66cd1847534bd45190dffa3a497cb Mon Sep 17 00:00:00 2001
+From: Kyle Martineau-McFarlane <kyle.martineau-mcfarlane@theverygroup.com>
+Date: Wed, 4 May 2022 15:09:13 +0100
+Subject: [PATCH 3/4] Fix to handle AWS restrictions on tags
+
+---
+ .../java/com/cloudbees/jenkins/plugins/amazonecs/ECSSlave.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/main/java/com/cloudbees/jenkins/plugins/amazonecs/ECSSlave.java b/src/main/java/com/cloudbees/jenkins/plugins/amazonecs/ECSSlave.java
+index 006de11..3247cca 100644
+--- a/src/main/java/com/cloudbees/jenkins/plugins/amazonecs/ECSSlave.java
++++ b/src/main/java/com/cloudbees/jenkins/plugins/amazonecs/ECSSlave.java
+@@ -179,7 +179,8 @@ public class ECSSlave extends AbstractCloudSlave {
+         for (Tag tag: tags) {
+             if (tag.getKey().startsWith("JENKINS_JOB_PREFIX_")) {
+                 weHaveJobPrefixRestrictions = true;
+-                if (jobUrl.startsWith(tag.getValue())) {
++                String restrictedPrefix = tag.getValue().replace("@", "%");
++                if (jobUrl.startsWith(restrictedPrefix)) {
+                     return true;
+                 }
+             }
+-- 
+2.30.2
+
